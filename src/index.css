@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Clean & Green Technology Design System */
+@layer base {
+  :root {
+    /* Clean & Green Brand Colors */
+    --primary: 122 58% 47%;           /* Green #4CAF50 */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 122 50% 60%;
+    --primary-glow: 122 70% 70%;
+    
+    /* Secondary Blue Accents */
+    --secondary: 210 50% 87%;         /* Light Blue */
+    --secondary-foreground: 222 47% 11%;
+    --accent: 195 100% 50%;           /* Blue #03A9F4 */
+    --accent-foreground: 0 0% 100%;
+    
+    /* Neutral System */
+    --background: 0 0% 100%;
+    --foreground: 222 84% 5%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    /* UI Components */
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 122 58% 47%;
+    
+    /* Status Colors */
+    --success: 122 58% 47%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(122, 58%, 47%), hsl(122, 70%, 60%));
+    --gradient-background: linear-gradient(to top right, hsl(122, 20%, 95%), hsl(210, 50%, 95%));
+    --gradient-card: linear-gradient(135deg, hsl(0, 0%, 100%), hsl(122, 20%, 98%));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 12px hsla(122, 58%, 47%, 0.1);
+    --shadow-medium: 0 8px 25px hsla(122, 58%, 47%, 0.15);
+    --shadow-strong: 0 12px 35px hsla(122, 58%, 47%, 0.2);
+    
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    --radius: 0.75rem;
+
+  }
+
+  .dark {
+    --primary: 122 70% 60%;
+    --primary-foreground: 222 84% 5%;
+    --secondary: 210 40% 20%;
+    --secondary-foreground: 210 40% 98%;
+    --background: 222 84% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 84% 5%;
+    --card-foreground: 210 40% 98%;
+    --muted: 217 33% 18%;
+    --muted-foreground: 215 20% 65%;
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 122 58% 47%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-['Inter'];
+    background: var(--gradient-background);
+    min-height: 100vh;
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .shadow-strong {
+    box-shadow: var(--shadow-strong);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+}
