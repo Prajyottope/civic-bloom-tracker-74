@@ -1,56 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
 import { IssueForm } from '@/components/IssueForm';
 import { IssuesList } from '@/components/IssuesList';
-import { useToast } from '@/hooks/use-toast';
-
-export interface Issue {
-  id: string;
-  title: string;
-  description: string;
-  status: 'pending' | 'in_progress' | 'resolved';
-  createdAt: Date;
-  userId: string;
-  imageUrl?: string;
-}
+import { useAuth } from '@/hooks/useAuth';
+import { useIssues } from '@/hooks/useIssues';
 
 const Dashboard = () => {
-  const [issues, setIssues] = useState<Issue[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+  const { issues, loading: issuesLoading, createIssue } = useIssues();
 
-  useEffect(() => {
-    // Load issues from localStorage
-    const savedIssues = localStorage.getItem('cleanGreenIssues');
-    if (savedIssues) {
-      const parsedIssues = JSON.parse(savedIssues).map((issue: any) => ({
-        ...issue,
-        createdAt: new Date(issue.createdAt)
-      }));
-      setIssues(parsedIssues);
-    }
-  }, []);
+  if (authLoading || issuesLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleIssueSubmit = async (issueData: Omit<Issue, 'id' | 'createdAt' | 'userId'>) => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    const newIssue: Issue = {
-      id: 'issue_' + Date.now(),
-      ...issueData,
-      createdAt: new Date(),
-      userId: user.id || 'anonymous',
-      status: 'pending'
-    };
+  // Redirect to auth if not authenticated
+  if (!authLoading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
-    const updatedIssues = [newIssue, ...issues];
-    setIssues(updatedIssues);
-    localStorage.setItem('cleanGreenIssues', JSON.stringify(updatedIssues));
-
-    toast({
-      title: "Issue Reported!",
-      description: "Your issue has been successfully submitted.",
-    });
+  const handleIssueSubmit = async (issueData: {
+    title: string;
+    description: string;
+    image_url?: string;
+  }) => {
+    await createIssue(issueData);
   };
 
   const filteredIssues = statusFilter === 'all' 

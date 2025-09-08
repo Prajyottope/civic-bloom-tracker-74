@@ -1,19 +1,15 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Leaf, Users, TreePine, Recycle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const user = localStorage.getItem('user');
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
+  // Redirect logged in users to dashboard
+  if (user) {
+    window.location.href = '/dashboard';
+  }
 
   const features = [
     {
@@ -59,7 +55,7 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg"
-              onClick={() => navigate('/login')}
+              onClick={() => window.location.href = '/auth'}
               className="bg-gradient-primary hover:opacity-90 transition-smooth shadow-medium px-8 py-4 text-lg"
             >
               Get Started
@@ -67,7 +63,7 @@ const Index = () => {
             <Button 
               variant="outline"
               size="lg"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => window.location.href = '/dashboard'}
               className="px-8 py-4 text-lg transition-smooth hover:shadow-soft"
             >
               View Issues
@@ -118,7 +114,7 @@ const Index = () => {
               </p>
               <Button 
                 size="lg"
-                onClick={() => navigate('/login')}
+                onClick={() => window.location.href = '/auth'}
                 className="bg-gradient-primary hover:opacity-90 transition-smooth shadow-medium px-8 py-4 text-lg"
               >
                 Start Reporting Issues

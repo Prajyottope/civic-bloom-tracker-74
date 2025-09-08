@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, User } from 'lucide-react';
-import type { Issue } from '@/pages/Dashboard';
+import { Issue } from '@/hooks/useIssues';
 
 interface IssuesListProps {
   issues: Issue[];
@@ -70,9 +70,9 @@ export const IssuesList = ({ issues }: IssuesListProps) => {
                 {issue.description}
               </CardDescription>
               
-              {issue.imageUrl && (
+              {issue.image_url && (
                 <img
-                  src={issue.imageUrl}
+                  src={issue.image_url}
                   alt="Issue"
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
@@ -81,11 +81,11 @@ export const IssuesList = ({ issues }: IssuesListProps) => {
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <User className="w-3 h-3" />
-                  <span>{issue.userId.substring(0, 8)}...</span>
+                  <span>User {issue.user_id.substring(0, 8)}...</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Clock className="w-3 h-3" />
-                  <span>{issue.createdAt.toLocaleDateString()}</span>
+                  <span>{new Date(issue.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </CardContent>

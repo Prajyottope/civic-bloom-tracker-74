@@ -5,38 +5,41 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Camera, Send } from 'lucide-react';
-import type { Issue } from '@/pages/Dashboard';
 
 interface IssueFormProps {
-  onSubmit: (issueData: Omit<Issue, 'id' | 'createdAt' | 'userId'>) => void;
+  onSubmit: (issueData: {
+    title: string;
+    description: string;
+    image_url?: string;
+  }) => void;
 }
 
 export const IssueForm = ({ onSubmit }: IssueFormProps) => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    imageUrl: ''
-  });
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.description) return;
+    if (!title.trim()) return;
 
     setIsLoading(true);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      onSubmit({
-        title: formData.title,
-        description: formData.description,
-        imageUrl: formData.imageUrl,
-        status: 'pending'
-      });
 
-      setFormData({ title: '', description: '', imageUrl: '' });
-      setIsLoading(false);
-    }, 1000);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    onSubmit({
+      title: title.trim(),
+      description: description.trim(),
+      image_url: imageUrl,
+    });
+
+    // Reset form
+    setTitle('');
+    setDescription('');
+    setImageUrl('');
+    setIsLoading(false);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,7 +47,7 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
     if (file) {
       // Simulate image upload - in real app, this would upload to storage
       const fakeUrl = `https://images.unsplash.com/photo-${Date.now()}?w=400&h=300&fit=crop`;
-      setFormData(prev => ({ ...prev, imageUrl: fakeUrl }));
+      setImageUrl(fakeUrl);
     }
   };
 
@@ -63,8 +66,8 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
             <Input
               id="title"
               placeholder="e.g., Pothole on Main Street"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               className="transition-smooth focus:shadow-soft"
               required
             />
@@ -76,8 +79,8 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
               id="description"
               placeholder="Describe the issue in detail..."
               rows={4}
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="transition-smooth focus:shadow-soft"
               required
             />
@@ -95,10 +98,10 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
               />
               <Camera className="w-5 h-5 text-muted-foreground" />
             </div>
-            {formData.imageUrl && (
+            {imageUrl && (
               <div className="mt-2">
                 <img
-                  src={formData.imageUrl}
+                  src={imageUrl}
                   alt="Preview"
                   className="w-full h-48 object-cover rounded-lg"
                 />

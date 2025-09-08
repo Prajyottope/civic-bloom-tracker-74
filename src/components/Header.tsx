@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Leaf, Menu, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Shield, Filter, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface HeaderProps {
   onFilterChange: (filter: string) => void;
@@ -15,19 +15,10 @@ interface HeaderProps {
 }
 
 export const Header = ({ onFilterChange, currentFilter }: HeaderProps) => {
-  const [user, setUser] = useState<any>(null);
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/login');
+  const handleLogout = async () => {
+    await signOut();
   };
 
   const filterOptions = [
@@ -42,25 +33,25 @@ export const Header = ({ onFilterChange, currentFilter }: HeaderProps) => {
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-3">
           <div className="bg-primary/10 p-2 rounded-full">
-            <Leaf className="w-6 h-6 text-primary" />
+            <Shield className="w-6 h-6 text-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Clean & Green</h1>
-            <p className="text-sm text-primary hidden sm:block">Technology</p>
+            <p className="text-sm text-primary hidden sm:block">Community Issues</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
           {user && (
-            <div className="text-sm text-muted-foreground hidden sm:block">
-              Welcome, {user.name}
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Welcome back, {user.email}!
+            </p>
           )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="transition-smooth">
-                <Menu className="w-5 h-5" />
+                <Filter className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -73,6 +64,7 @@ export const Header = ({ onFilterChange, currentFilter }: HeaderProps) => {
                   {option.label}
                 </DropdownMenuItem>
               ))}
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
