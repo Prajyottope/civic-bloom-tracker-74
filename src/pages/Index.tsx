@@ -66,7 +66,7 @@ const Index = () => {
               onClick={() => window.location.href = '/dashboard'}
               className="px-8 py-4 text-lg transition-smooth hover:shadow-soft"
             >
-              View Issues
+              Dashboard
             </Button>
           </div>
         </div>
