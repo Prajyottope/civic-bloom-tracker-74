@@ -16,30 +16,42 @@ export type Database = {
     Tables: {
       issues: {
         Row: {
+          city: string | null
           created_at: string
           description: string | null
           id: string
           image_url: string | null
+          latitude: number | null
+          longitude: number | null
+          state: string | null
           status: string
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          city?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          state?: string | null
           status?: string
           title: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          city?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          state?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -47,12 +59,85 @@ export type Database = {
         }
         Relationships: []
       }
+      locations: {
+        Row: {
+          city_name: string
+          created_at: string
+          id: string
+          is_tier1: boolean | null
+          latitude: number | null
+          longitude: number | null
+          state_name: string
+        }
+        Insert: {
+          city_name: string
+          created_at?: string
+          id?: string
+          is_tier1?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          state_name: string
+        }
+        Update: {
+          city_name?: string
+          created_at?: string
+          id?: string
+          is_tier1?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          state_name?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          issue_id: string | null
+          message: string
+          sent_at: string | null
+          status: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          issue_id?: string | null
+          message: string
+          sent_at?: string | null
+          status?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          issue_id?: string | null
+          message?: string
+          sent_at?: string | null
+          status?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
           display_name: string | null
           email: string | null
           id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string
           user_id: string
         }
@@ -61,6 +146,8 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id: string
         }
@@ -69,8 +156,49 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          city_name: string | null
+          created_at: string
+          created_by: string
+          generated_at: string
+          id: string
+          in_progress_count: number | null
+          issue_count: number | null
+          pending_count: number | null
+          resolved_count: number | null
+          state_name: string | null
+        }
+        Insert: {
+          city_name?: string | null
+          created_at?: string
+          created_by: string
+          generated_at?: string
+          id?: string
+          in_progress_count?: number | null
+          issue_count?: number | null
+          pending_count?: number | null
+          resolved_count?: number | null
+          state_name?: string | null
+        }
+        Update: {
+          city_name?: string | null
+          created_at?: string
+          created_by?: string
+          generated_at?: string
+          id?: string
+          in_progress_count?: number | null
+          issue_count?: number | null
+          pending_count?: number | null
+          resolved_count?: number | null
+          state_name?: string | null
         }
         Relationships: []
       }
@@ -82,7 +210,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "citizen" | "admin" | "municipal_staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -209,6 +337,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["citizen", "admin", "municipal_staff"],
+    },
   },
 } as const

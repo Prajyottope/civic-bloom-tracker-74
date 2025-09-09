@@ -5,16 +5,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { Shield, Filter, LogOut } from 'lucide-react';
+import { Shield, Filter, LogOut, MoreVertical, Settings, Users, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { LocationFilter } from './LocationFilter';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps {
   onFilterChange: (filter: string) => void;
+  onLocationChange: (state?: string, city?: string) => void;
   currentFilter: string;
+  selectedState?: string;
+  selectedCity?: string;
 }
 
-export const Header = ({ onFilterChange, currentFilter }: HeaderProps) => {
+export const Header = ({ 
+  onFilterChange, 
+  onLocationChange, 
+  currentFilter, 
+  selectedState, 
+  selectedCity 
+}: HeaderProps) => {
   const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
@@ -42,11 +54,11 @@ export const Header = ({ onFilterChange, currentFilter }: HeaderProps) => {
         </div>
         
         <div className="flex items-center space-x-4">
-          {user && (
-            <p className="text-sm text-muted-foreground">
-              Welcome back, {user.email}!
-            </p>
-          )}
+          <LocationFilter 
+            onLocationChange={onLocationChange}
+            selectedState={selectedState}
+            selectedCity={selectedCity}
+          />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -54,7 +66,9 @@ export const Header = ({ onFilterChange, currentFilter }: HeaderProps) => {
                 <Filter className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
+              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               {filterOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
@@ -64,11 +78,50 @@ export const Header = ({ onFilterChange, currentFilter }: HeaderProps) => {
                   {option.label}
                 </DropdownMenuItem>
               ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {user && (
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-medium text-foreground">Welcome, {user.email?.split('@')[0]}</p>
+            </div>
+          )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="transition-smooth">
+                <MoreVertical className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
+              <DropdownMenuLabel>Menu</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
+              
+              <DropdownMenuItem asChild>
+                <Link to="/municipal-dashboard" className="flex items-center">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Municipal Dashboard
+                </Link>
               </DropdownMenuItem>
+              
+              <DropdownMenuItem>
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem>
+                <Users className="h-4 w-4 mr-2" />
+                Profile
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              
+              {user && (
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

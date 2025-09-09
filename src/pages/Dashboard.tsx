@@ -9,8 +9,10 @@ import { useIssues } from '@/hooks/useIssues';
 
 const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedState, setSelectedState] = useState<string>();
+  const [selectedCity, setSelectedCity] = useState<string>();
   const { user, loading: authLoading } = useAuth();
-  const { issues, loading: issuesLoading, createIssue } = useIssues();
+  const { issues, loading: issuesLoading, createIssue, fetchIssues } = useIssues();
 
   if (authLoading || issuesLoading) {
     return (
@@ -32,17 +34,46 @@ const Dashboard = () => {
     title: string;
     description: string;
     image_url?: string;
+    state?: string;
+    city?: string;
+    latitude?: number;
+    longitude?: number;
   }) => {
     await createIssue(issueData);
   };
 
-  const filteredIssues = statusFilter === 'all' 
-    ? issues 
-    : issues.filter(issue => issue.status === statusFilter);
+  const handleLocationChange = (state?: string, city?: string) => {
+    setSelectedState(state);
+    setSelectedCity(city);
+    // Refetch issues with new filters
+    fetchIssues({
+      status: statusFilter === 'all' ? undefined : statusFilter,
+      state,
+      city
+    });
+  };
+
+  const handleStatusFilterChange = (filter: string) => {
+    setStatusFilter(filter);
+    // Refetch issues with new filters
+    fetchIssues({
+      status: filter === 'all' ? undefined : filter,
+      state: selectedState,
+      city: selectedCity
+    });
+  };
+
+  const filteredIssues = issues; // Issues are now filtered on the backend
 
   return (
     <div className="min-h-screen">
-      <Header onFilterChange={setStatusFilter} currentFilter={statusFilter} />
+      <Header 
+        onFilterChange={handleStatusFilterChange} 
+        onLocationChange={handleLocationChange}
+        currentFilter={statusFilter}
+        selectedState={selectedState}
+        selectedCity={selectedCity}
+      />
       
       <main className="container mx-auto px-4 py-8 space-y-8">
         <HeroSection />

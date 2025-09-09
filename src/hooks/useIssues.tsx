@@ -10,6 +10,10 @@ export interface Issue {
   status: 'pending' | 'in_progress' | 'resolved';
   image_url?: string;
   user_id: string;
+  state?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
   created_at: string;
   updated_at: string;
 }
@@ -20,13 +24,29 @@ export function useIssues() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const fetchIssues = async () => {
+  const fetchIssues = async (filters?: {
+    status?: string;
+    state?: string;
+    city?: string;
+  }) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('issues')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (filters?.status && filters.status !== 'all') {
+        query = query.eq('status', filters.status);
+      }
+      if (filters?.state) {
+        query = query.eq('state', filters.state);
+      }
+      if (filters?.city) {
+        query = query.eq('city', filters.city);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setIssues(data as Issue[] || []);
@@ -45,6 +65,10 @@ export function useIssues() {
     title: string;
     description: string;
     image_url?: string;
+    state?: string;
+    city?: string;
+    latitude?: number;
+    longitude?: number;
   }) => {
     if (!user) return;
 
@@ -74,6 +98,36 @@ export function useIssues() {
     }
   };
 
+  const updateIssueStatus = async (issueId: string, status: 'pending' | 'in_progress' | 'resolved') => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('issues')
+        .update({ status })
+        .eq('id', issueId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setIssues(prev => prev.map(issue => 
+        issue.id === issueId ? { ...issue, status } : issue
+      ));
+      
+      toast({
+        title: "Issue Updated!",
+        description: `Issue status changed to ${status.replace('_', ' ')}.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error Updating Issue",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchIssues();
@@ -84,6 +138,8 @@ export function useIssues() {
     issues,
     loading,
     createIssue,
+    updateIssueStatus,
+    fetchIssues,
     refetch: fetchIssues,
   };
 }
