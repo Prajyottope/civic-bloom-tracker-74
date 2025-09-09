@@ -38,6 +38,7 @@ const Dashboard = () => {
     city?: string;
     latitude?: number;
     longitude?: number;
+    exact_location?: string;
   }) => {
     await createIssue(issueData);
   };

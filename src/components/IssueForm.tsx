@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocations } from '@/hooks/useLocations';
-import { Upload, MapPin } from 'lucide-react';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { Upload, MapPin, Camera, FileImage, X } from 'lucide-react';
 
 interface IssueFormProps {
   onSubmit: (issue: {
@@ -17,18 +18,21 @@ interface IssueFormProps {
     city?: string;
     latitude?: number;
     longitude?: number;
+    exact_location?: string;
   }) => void;
 }
 
 export const IssueForm = ({ onSubmit }: IssueFormProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [exactLocation, setExactLocation] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<string>('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { states, getCitiesForState, getLocationByCity, loading: locationsLoading } = useLocations();
+  const { uploadFile, openFileSelector, openCamera, uploading } = useFileUpload();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,17 +43,19 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
       await onSubmit({
         title,
         description,
-        image_url: imageUrl || undefined,
+        image_url: uploadedFile || undefined,
         state: selectedState || undefined,
         city: selectedCity || undefined,
         latitude: location?.latitude,
         longitude: location?.longitude,
+        exact_location: exactLocation || undefined,
       });
       
       // Reset form
       setTitle('');
       setDescription('');
-      setImageUrl('');
+      setExactLocation('');
+      setUploadedFile('');
       setSelectedState('');
       setSelectedCity('');
     } finally {
@@ -63,6 +69,24 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
   };
 
   const availableCities = selectedState ? getCitiesForState(selectedState) : [];
+
+  const handleFileUpload = async (type: 'camera' | 'gallery') => {
+    try {
+      const file = type === 'camera' ? await openCamera() : await openFileSelector();
+      if (file) {
+        const uploadedUrl = await uploadFile(file);
+        if (uploadedUrl) {
+          setUploadedFile(uploadedUrl);
+        }
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
+    }
+  };
+
+  const removeFile = () => {
+    setUploadedFile('');
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -140,24 +164,66 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Image URL (Optional)</Label>
-              <Input
-                id="image"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
+              <Label htmlFor="exact-location">Exact Location (Optional)</Label>
+              <Textarea
+                id="exact-location"
+                placeholder="e.g., Near City Mall, Main Road, Landmark details..."
+                value={exactLocation}
+                onChange={(e) => setExactLocation(e.target.value)}
+                rows={2}
               />
-              {imageUrl && (
-                <div className="mt-2">
-                  <img
-                    src={imageUrl}
-                    alt="Issue preview"
-                    className="w-full max-w-sm h-48 object-cover rounded-md border"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+            </div>
+
+            <div className="space-y-4">
+              <Label>Photo/Document (Optional)</Label>
+              
+              {!uploadedFile ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleFileUpload('camera')}
+                    disabled={uploading}
+                    className="h-24 flex-col gap-2"
+                  >
+                    <Camera className="h-8 w-8" />
+                    {uploading ? 'Uploading...' : 'Take Photo'}
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleFileUpload('gallery')}
+                    disabled={uploading}
+                    className="h-24 flex-col gap-2"
+                  >
+                    <FileImage className="h-8 w-8" />
+                    {uploading ? 'Uploading...' : 'Choose File'}
+                  </Button>
+                </div>
+              ) : (
+                <div className="relative">
+                  {uploadedFile.startsWith('data:image') ? (
+                    <img
+                      src={uploadedFile}
+                      alt="Uploaded issue"
+                      className="w-full max-w-sm h-48 object-cover rounded-md border"
+                    />
+                  ) : (
+                    <div className="w-full max-w-sm h-24 border rounded-md flex items-center justify-center bg-muted">
+                      <FileImage className="h-8 w-8 text-muted-foreground" />
+                      <span className="ml-2 text-sm text-muted-foreground">Document uploaded</span>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={removeFile}
+                    className="absolute top-2 right-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               )}
             </div>
