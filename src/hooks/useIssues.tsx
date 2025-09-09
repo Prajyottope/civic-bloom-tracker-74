@@ -14,6 +14,7 @@ export interface Issue {
   city?: string;
   latitude?: number;
   longitude?: number;
+  exact_location?: string;
   created_at: string;
   updated_at: string;
 }

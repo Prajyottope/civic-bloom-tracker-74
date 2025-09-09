@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,6 +12,7 @@ import { Shield, Filter, LogOut, MoreVertical, Settings, Users, BarChart3 } from
 import { useAuth } from '@/hooks/useAuth';
 import { LocationFilter } from './LocationFilter';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HeaderProps {
   onFilterChange: (filter: string) => void;
@@ -28,6 +30,19 @@ export const Header = ({
   selectedCity 
 }: HeaderProps) => {
   const { user, signOut } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      const { count } = await supabase
+        .from('issues')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      setPendingCount(count || 0);
+    };
+
+    fetchPendingCount();
+  }, []);
 
   const handleLogout = async () => {
     await signOut();
@@ -35,7 +50,7 @@ export const Header = ({
 
   const filterOptions = [
     { value: 'all', label: 'All Issues' },
-    { value: 'pending', label: 'Pending Issues' },
+    { value: 'pending', label: `Pending Issues ${pendingCount > 0 ? `(${pendingCount})` : ''}` },
     { value: 'in_progress', label: 'In Progress Issues' },
     { value: 'resolved', label: 'Resolved Issues' },
   ];

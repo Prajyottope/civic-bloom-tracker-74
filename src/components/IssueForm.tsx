@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocations } from '@/hooks/useLocations';
-import { useFileUpload } from '@/hooks/useFileUpload';
-import { Upload, MapPin, Camera, FileImage, X } from 'lucide-react';
+import { Upload, MapPin, Camera, Paperclip } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface IssueFormProps {
   onSubmit: (issue: {
@@ -25,25 +26,80 @@ interface IssueFormProps {
 export const IssueForm = ({ onSubmit }: IssueFormProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [exactLocation, setExactLocation] = useState('');
-  const [uploadedFile, setUploadedFile] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const [exactLocation, setExactLocation] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   
   const { states, getCitiesForState, getLocationByCity, loading: locationsLoading } = useLocations();
-  const { uploadFile, openFileSelector, openCamera, uploading } = useFileUpload();
+  const { toast } = useToast();
+
+  const handleFileUpload = async (file: File) => {
+    if (!file) return '';
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('issue-documents')
+        .upload(filePath, file);
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('issue-documents')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      return '';
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Create preview URL for images
+      if (file.type.startsWith('image/')) {
+        const previewUrl = URL.createObjectURL(file);
+        setImageUrl(previewUrl);
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      let uploadedImageUrl = '';
+      
+      // Upload file if selected
+      if (selectedFile) {
+        uploadedImageUrl = await handleFileUpload(selectedFile);
+      }
+
       const location = getLocationByCity(selectedCity);
       await onSubmit({
         title,
         description,
-        image_url: uploadedFile || undefined,
+        image_url: uploadedImageUrl || undefined,
         state: selectedState || undefined,
         city: selectedCity || undefined,
         latitude: location?.latitude,
@@ -54,10 +110,11 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
       // Reset form
       setTitle('');
       setDescription('');
-      setExactLocation('');
-      setUploadedFile('');
+      setSelectedFile(null);
+      setImageUrl('');
       setSelectedState('');
       setSelectedCity('');
+      setExactLocation('');
     } finally {
       setLoading(false);
     }
@@ -69,24 +126,6 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
   };
 
   const availableCities = selectedState ? getCitiesForState(selectedState) : [];
-
-  const handleFileUpload = async (type: 'camera' | 'gallery') => {
-    try {
-      const file = type === 'camera' ? await openCamera() : await openFileSelector();
-      if (file) {
-        const uploadedUrl = await uploadFile(file);
-        if (uploadedUrl) {
-          setUploadedFile(uploadedUrl);
-        }
-      }
-    } catch (error) {
-      console.error('File upload error:', error);
-    }
-  };
-
-  const removeFile = () => {
-    setUploadedFile('');
-  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -167,70 +206,54 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
               <Label htmlFor="exact-location">Exact Location (Optional)</Label>
               <Textarea
                 id="exact-location"
-                placeholder="e.g., Near City Mall, Main Road, Landmark details..."
+                placeholder="Describe the exact location or address of the issue..."
+                rows={2}
                 value={exactLocation}
                 onChange={(e) => setExactLocation(e.target.value)}
-                rows={2}
               />
             </div>
 
-            <div className="space-y-4">
-              <Label>Photo/Document (Optional)</Label>
-              
-              {!uploadedFile ? (
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleFileUpload('camera')}
-                    disabled={uploading}
-                    className="h-24 flex-col gap-2"
-                  >
-                    <Camera className="h-8 w-8" />
-                    {uploading ? 'Uploading...' : 'Take Photo'}
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleFileUpload('gallery')}
-                    disabled={uploading}
-                    className="h-24 flex-col gap-2"
-                  >
-                    <FileImage className="h-8 w-8" />
-                    {uploading ? 'Uploading...' : 'Choose File'}
-                  </Button>
-                </div>
-              ) : (
-                <div className="relative">
-                  {uploadedFile.startsWith('data:image') ? (
-                    <img
-                      src={uploadedFile}
-                      alt="Uploaded issue"
-                      className="w-full max-w-sm h-48 object-cover rounded-md border"
-                    />
-                  ) : (
-                    <div className="w-full max-w-sm h-24 border rounded-md flex items-center justify-center bg-muted">
-                      <FileImage className="h-8 w-8 text-muted-foreground" />
-                      <span className="ml-2 text-sm text-muted-foreground">Document uploaded</span>
-                    </div>
-                  )}
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={removeFile}
-                    className="absolute top-2 right-2"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+            <div className="space-y-2">
+              <Label htmlFor="document">Photo/Document (Optional)</Label>
+              <div className="flex items-center gap-4">
+                <Input
+                  id="document"
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('document')?.click()}
+                  className="flex items-center gap-2"
+                  disabled={uploading}
+                >
+                  <Camera className="h-4 w-4" />
+                  {uploading ? 'Uploading...' : 'Upload Photo/Document'}
+                </Button>
+                {selectedFile && (
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Paperclip className="h-3 w-3" />
+                    {selectedFile.name}
+                  </span>
+                )}
+              </div>
+              {imageUrl && selectedFile?.type.startsWith('image/') && (
+                <div className="mt-2">
+                  <img
+                    src={imageUrl}
+                    alt="Issue preview"
+                    className="w-full max-w-sm h-48 object-cover rounded-md border"
+                  />
                 </div>
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || uploading}>
               <Upload className="h-4 w-4 mr-2" />
-              {loading ? 'Submitting...' : 'Report Issue'}
+              {loading ? 'Submitting...' : uploading ? 'Processing...' : 'Report Issue'}
             </Button>
           </form>
         </CardContent>
