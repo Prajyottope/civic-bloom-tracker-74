@@ -15,6 +15,8 @@ export interface Issue {
   latitude?: number;
   longitude?: number;
   exact_location?: string;
+  user_latitude?: number;
+  user_longitude?: number;
   created_at: string;
   updated_at: string;
 }
@@ -71,6 +73,8 @@ export function useIssues() {
     latitude?: number;
     longitude?: number;
     exact_location?: string;
+    user_latitude?: number;
+    user_longitude?: number;
   }) => {
     if (!user) return;
 

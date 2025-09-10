@@ -31,6 +31,7 @@ export const Header = ({
 }: HeaderProps) => {
   const { user, signOut } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -41,8 +42,27 @@ export const Header = ({
       setPendingCount(count || 0);
     };
 
+    const fetchUserProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('username, display_name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        setUserProfile(data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
     fetchPendingCount();
-  }, []);
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     await signOut();
@@ -98,7 +118,9 @@ export const Header = ({
 
           {user && (
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-foreground">Welcome, {user.email?.split('@')[0]}</p>
+              <p className="text-sm font-medium text-foreground">
+                Welcome, {userProfile?.username || userProfile?.display_name || user.email?.split('@')[0]}
+              </p>
             </div>
           )}
 
@@ -124,9 +146,11 @@ export const Header = ({
                 Settings
               </DropdownMenuItem>
               
-              <DropdownMenuItem>
-                <Users className="h-4 w-4 mr-2" />
-                Profile
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="flex items-center">
+                  <Users className="h-4 w-4 mr-2" />
+                  Profile
+                </Link>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

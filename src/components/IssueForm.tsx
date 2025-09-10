@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocations } from '@/hooks/useLocations';
-import { Upload, MapPin, Camera, Paperclip } from 'lucide-react';
+import { Upload, MapPin, Camera, Paperclip, Crosshair } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface IssueFormProps {
   onSubmit: (issue: {
@@ -20,6 +21,8 @@ interface IssueFormProps {
     latitude?: number;
     longitude?: number;
     exact_location?: string;
+    user_latitude?: number;
+    user_longitude?: number;
   }) => void;
 }
 
@@ -35,6 +38,7 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
   const [uploading, setUploading] = useState(false);
   
   const { states, getCitiesForState, getLocationByCity, loading: locationsLoading } = useLocations();
+  const { data: geolocationData, loading: geoLoading, getCurrentLocation, clearLocation } = useGeolocation();
   const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
@@ -105,6 +109,8 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
         latitude: location?.latitude,
         longitude: location?.longitude,
         exact_location: exactLocation || undefined,
+        user_latitude: geolocationData?.latitude,
+        user_longitude: geolocationData?.longitude,
       });
       
       // Reset form
@@ -115,6 +121,7 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
       setSelectedState('');
       setSelectedCity('');
       setExactLocation('');
+      clearLocation();
     } finally {
       setLoading(false);
     }
@@ -203,7 +210,20 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="exact-location">Exact Location (Optional)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="exact-location">Exact Location (Optional)</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={getCurrentLocation}
+                  disabled={geoLoading}
+                  className="flex items-center gap-2"
+                >
+                  <Crosshair className="h-4 w-4" />
+                  {geoLoading ? 'Getting Location...' : 'Use Live Location'}
+                </Button>
+              </div>
               <Textarea
                 id="exact-location"
                 placeholder="Describe the exact location or address of the issue..."
@@ -211,6 +231,12 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
                 value={exactLocation}
                 onChange={(e) => setExactLocation(e.target.value)}
               />
+              {geolocationData && (
+                <div className="text-sm text-green-600 mt-2 flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  Live location captured ({geolocationData.latitude.toFixed(6)}, {geolocationData.longitude.toFixed(6)})
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
