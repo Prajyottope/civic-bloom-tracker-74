@@ -45,6 +45,10 @@ const Dashboard = () => {
     exact_location?: string;
     user_latitude?: number;
     user_longitude?: number;
+    priority?: string;
+    contact_phone?: string;
+    contact_email?: string;
+    assigned_team_id?: string;
   }) => {
     await createIssue(issueData);
     setShowReportForm(false); // Hide form after successful submission

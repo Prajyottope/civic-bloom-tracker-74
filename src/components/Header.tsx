@@ -88,12 +88,14 @@ export const Header = ({
           </div>
         </div>
         
-        <div className="flex items-center space-x-4">
-          <LocationFilter 
-            onLocationChange={onLocationChange}
-            selectedState={selectedState}
-            selectedCity={selectedCity}
-          />
+        <div className="flex items-center space-x-2 overflow-x-auto">
+          <div className="flex-shrink-0">
+            <LocationFilter 
+              onLocationChange={onLocationChange}
+              selectedState={selectedState}
+              selectedCity={selectedCity}
+            />
+          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -117,8 +119,8 @@ export const Header = ({
           </DropdownMenu>
 
           {user && (
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-foreground">
+            <div className="text-right hidden sm:block flex-shrink-0">
+              <p className="text-sm font-medium text-foreground whitespace-nowrap">
                 Welcome, {userProfile?.username || userProfile?.display_name || user.email?.split('@')[0]}
               </p>
             </div>
@@ -135,7 +137,7 @@ export const Header = ({
               <DropdownMenuSeparator />
               
               <DropdownMenuItem asChild>
-                <Link to="/municipal-dashboard" className="flex items-center">
+                <Link to="/municipal-login" className="flex items-center">
                   <BarChart3 className="h-4 w-4 mr-2" />
                   Municipal Dashboard
                 </Link>

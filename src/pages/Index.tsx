@@ -63,7 +63,7 @@ const Index = () => {
             <Button 
               variant="outline"
               size="lg"
-              onClick={() => window.location.href = '/municipal-dashboard'}
+              onClick={() => window.location.href = '/municipal-login'}
               className="px-8 py-4 text-lg transition-smooth hover:shadow-soft"
             >
               Municipal Dashboard

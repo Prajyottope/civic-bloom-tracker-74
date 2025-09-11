@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,10 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocations } from '@/hooks/useLocations';
-import { Upload, MapPin, Camera, Paperclip, Crosshair } from 'lucide-react';
+import { Upload, MapPin, Camera, Paperclip, Crosshair, Phone, Mail, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useAuth } from '@/hooks/useAuth';
 
 interface IssueFormProps {
   onSubmit: (issue: {
@@ -23,6 +24,10 @@ interface IssueFormProps {
     exact_location?: string;
     user_latitude?: number;
     user_longitude?: number;
+    priority?: string;
+    contact_phone?: string;
+    contact_email?: string;
+    assigned_team_id?: string;
   }) => void;
 }
 
@@ -34,11 +39,17 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [exactLocation, setExactLocation] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState('');
+  const [availableTeams, setAvailableTeams] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   
   const { states, getCitiesForState, getLocationByCity, loading: locationsLoading } = useLocations();
   const { data: geolocationData, loading: geoLoading, getCurrentLocation, clearLocation } = useGeolocation();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
@@ -111,6 +122,10 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
         exact_location: exactLocation || undefined,
         user_latitude: geolocationData?.latitude,
         user_longitude: geolocationData?.longitude,
+        priority: priority || undefined,
+        contact_phone: contactPhone || undefined,
+        contact_email: contactEmail || user?.email || undefined,
+        assigned_team_id: selectedTeam || undefined,
       });
       
       // Reset form
@@ -121,15 +136,50 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
       setSelectedState('');
       setSelectedCity('');
       setExactLocation('');
+      setPriority('medium');
+      setContactPhone('');
+      setContactEmail('');
+      setSelectedTeam('');
       clearLocation();
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch teams when city changes
+  useEffect(() => {
+    const fetchTeams = async () => {
+      if (!selectedCity) {
+        setAvailableTeams([]);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('municipal_teams')
+          .select('*')
+          .eq('city_name', selectedCity);
+          
+        if (error) throw error;
+        setAvailableTeams(data || []);
+      } catch (error) {
+        console.error('Error fetching teams:', error);
+        setAvailableTeams([]);
+      }
+    };
+    
+    fetchTeams();
+  }, [selectedCity]);
+
   const handleStateChange = (state: string) => {
     setSelectedState(state);
     setSelectedCity(''); // Reset city when state changes
+    setSelectedTeam(''); // Reset team when state changes
+  };
+
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+    setSelectedTeam(''); // Reset team when city changes
   };
 
   const availableCities = selectedState ? getCitiesForState(selectedState) : [];
@@ -171,6 +221,41 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority Level</Label>
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      Low Priority
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="medium">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      Medium Priority
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="high">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                      High Priority
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="critical">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      Critical Priority
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="state">State</Label>
@@ -192,7 +277,7 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
                 <Label htmlFor="city">City</Label>
                 <Select 
                   value={selectedCity} 
-                  onValueChange={setSelectedCity} 
+                  onValueChange={handleCityChange} 
                   disabled={!selectedState || locationsLoading}
                 >
                   <SelectTrigger>
@@ -237,6 +322,56 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
                   Live location captured ({geolocationData.latitude.toFixed(6)}, {geolocationData.longitude.toFixed(6)})
                 </div>
               )}
+            </div>
+
+            {availableTeams.length > 0 && (
+              <div className="space-y-2">
+                <Label htmlFor="team">Assign to Team</Label>
+                <Select value={selectedTeam} onValueChange={setSelectedTeam}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTeams.map((team) => (
+                      <SelectItem key={team.id} value={team.id}>
+                        {team.team_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contact-phone">Contact Phone (Optional)</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="contact-phone"
+                    type="tel"
+                    placeholder="Your phone number"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="contact-email">Contact Email (Optional)</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="contact-email"
+                    type="email"
+                    placeholder="Your email address"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">

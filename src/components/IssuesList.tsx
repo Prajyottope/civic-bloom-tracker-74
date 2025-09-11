@@ -71,11 +71,17 @@ export const IssuesList = ({ issues }: IssuesListProps) => {
               </CardDescription>
               
               {issue.image_url && (
-                <img
-                  src={issue.image_url}
-                  alt="Issue"
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
+                <div className="w-full mb-4">
+                  <img
+                    src={issue.image_url}
+                    alt="Issue photo"
+                    className="w-full h-48 object-cover rounded-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
               )}
               
               <div className="flex items-center justify-between text-xs text-muted-foreground">
