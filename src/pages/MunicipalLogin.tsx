@@ -20,11 +20,12 @@ const MunicipalLogin = () => {
     setLoading(true);
 
     try {
-      // Verify credentials against municipal_admins table
+      // Verify credentials against simplified municipal_teams table
       const { data, error } = await supabase
-        .from('municipal_admins')
-        .select('*, municipal_teams(*)')
+        .from('municipal_teams')
+        .select('*')
         .eq('email', email)
+        .eq('password_hash', password)
         .eq('is_active', true)
         .single();
 
@@ -34,14 +35,13 @@ const MunicipalLogin = () => {
 
       // Store session in localStorage for simplicity
       localStorage.setItem('municipal_session', JSON.stringify({
-        admin: data,
-        team: data.municipal_teams,
+        team: data,
         loginTime: new Date().toISOString()
       }));
 
       toast({
         title: "Login Successful",
-        description: `Welcome to ${data.municipal_teams.team_name}`,
+        description: `Welcome to ${data.team_name}`,
       });
 
       setIsLoggedIn(true);

@@ -124,54 +124,16 @@ export type Database = {
         }
         Relationships: []
       }
-      municipal_admins: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          is_active: boolean | null
-          password_hash: string
-          role: string | null
-          team_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          is_active?: boolean | null
-          password_hash: string
-          role?: string | null
-          team_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          is_active?: boolean | null
-          password_hash?: string
-          role?: string | null
-          team_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "municipal_admins_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "municipal_teams"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       municipal_teams: {
         Row: {
           city_name: string
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          email: string
           id: string
+          is_active: boolean | null
+          password_hash: string
           state_name: string
           team_name: string
           updated_at: string
@@ -181,7 +143,10 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          email?: string
           id?: string
+          is_active?: boolean | null
+          password_hash?: string
           state_name: string
           team_name: string
           updated_at?: string
@@ -191,7 +156,10 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          email?: string
           id?: string
+          is_active?: boolean | null
+          password_hash?: string
           state_name?: string
           team_name?: string
           updated_at?: string

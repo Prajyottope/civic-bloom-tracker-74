@@ -260,7 +260,7 @@ const MunicipalProfile = () => {
                     <Label className="text-sm font-medium">Login Email</Label>
                     <div className="flex items-center gap-2 text-muted-foreground mt-1">
                       <Mail className="h-4 w-4" />
-                      <span>{session.admin.email}</span>
+                      <span>{session.team.email}</span>
                     </div>
                   </div>
                   
@@ -268,7 +268,7 @@ const MunicipalProfile = () => {
                     <Label className="text-sm font-medium">Role</Label>
                     <div className="mt-1">
                       <Badge variant="outline" className="capitalize">
-                        {session.admin.role}
+                        Team Admin
                       </Badge>
                     </div>
                   </div>
@@ -278,8 +278,8 @@ const MunicipalProfile = () => {
                   <div>
                     <Label className="text-sm font-medium">Account Status</Label>
                     <div className="mt-1">
-                      <Badge className={session.admin.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                        {session.admin.is_active ? 'Active' : 'Inactive'}
+                      <Badge className={session.team.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                        {session.team.is_active ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
                   </div>

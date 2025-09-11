@@ -1,23 +1,18 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 
-interface MunicipalAdmin {
-  id: string;
-  email: string;
-  role: string;
-  is_active: boolean;
-}
-
 interface MunicipalTeam {
   id: string;
   team_name: string;
   city_name: string;
   state_name: string;
+  email: string;
+  password_hash: string;
+  is_active: boolean;
   contact_email?: string;
   contact_phone?: string;
 }
 
 interface MunicipalSession {
-  admin: MunicipalAdmin;
   team: MunicipalTeam;
   loginTime: string;
 }
