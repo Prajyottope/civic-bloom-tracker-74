@@ -20,7 +20,7 @@ const MunicipalLogin = () => {
     setLoading(true);
 
     try {
-      // Verify credentials against simplified municipal_teams table
+      // Verify credentials against municipal_teams table
       const { data, error } = await supabase
         .from('municipal_teams')
         .select('*')
@@ -48,7 +48,7 @@ const MunicipalLogin = () => {
     } catch (error: any) {
       toast({
         title: "Login Failed",
-        description: "Invalid email or password",
+        description: "Invalid email or password. Please check your credentials.",
         variant: "destructive",
       });
     } finally {

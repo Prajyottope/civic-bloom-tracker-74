@@ -6,10 +6,9 @@ interface MunicipalTeam {
   city_name: string;
   state_name: string;
   email: string;
-  password_hash: string;
-  is_active: boolean;
   contact_email?: string;
   contact_phone?: string;
+  is_active: boolean;
 }
 
 interface MunicipalSession {
