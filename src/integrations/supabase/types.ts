@@ -16,7 +16,10 @@ export type Database = {
     Tables: {
       issues: {
         Row: {
+          assigned_team_id: string | null
           city: string | null
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string
           description: string | null
           exact_location: string | null
@@ -24,6 +27,9 @@ export type Database = {
           image_url: string | null
           latitude: number | null
           longitude: number | null
+          priority: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
           state: string | null
           status: string
           title: string
@@ -33,7 +39,10 @@ export type Database = {
           user_longitude: number | null
         }
         Insert: {
+          assigned_team_id?: string | null
           city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           exact_location?: string | null
@@ -41,6 +50,9 @@ export type Database = {
           image_url?: string | null
           latitude?: number | null
           longitude?: number | null
+          priority?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
           state?: string | null
           status?: string
           title: string
@@ -50,7 +62,10 @@ export type Database = {
           user_longitude?: number | null
         }
         Update: {
+          assigned_team_id?: string | null
           city?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           description?: string | null
           exact_location?: string | null
@@ -58,6 +73,9 @@ export type Database = {
           image_url?: string | null
           latitude?: number | null
           longitude?: number | null
+          priority?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
           state?: string | null
           status?: string
           title?: string
@@ -66,7 +84,15 @@ export type Database = {
           user_latitude?: number | null
           user_longitude?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "issues_assigned_team_id_fkey"
+            columns: ["assigned_team_id"]
+            isOneToOne: false
+            referencedRelation: "municipal_teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       locations: {
         Row: {
@@ -95,6 +121,80 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           state_name?: string
+        }
+        Relationships: []
+      }
+      municipal_admins: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+          password_hash: string
+          role: string | null
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+          password_hash: string
+          role?: string | null
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          password_hash?: string
+          role?: string | null
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipal_admins_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "municipal_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      municipal_teams: {
+        Row: {
+          city_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          state_name: string
+          team_name: string
+          updated_at: string
+        }
+        Insert: {
+          city_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          state_name: string
+          team_name: string
+          updated_at?: string
+        }
+        Update: {
+          city_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          state_name?: string
+          team_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
