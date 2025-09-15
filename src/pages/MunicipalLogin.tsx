@@ -118,9 +118,7 @@ const MunicipalLogin = () => {
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Demo Credentials:</p>
-            <p>Email: prajyottope@gmail.com</p>
-            <p>Password: Prajyot@0404</p>
+            <p>Contact your municipal administrator for login credentials</p>
           </div>
         </CardContent>
       </Card>

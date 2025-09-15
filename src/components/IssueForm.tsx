@@ -163,7 +163,6 @@ export const IssueForm = ({ onSubmit }: IssueFormProps) => {
         if (error) throw error;
         setAvailableTeams(data || []);
       } catch (error) {
-        console.error('Error fetching teams:', error);
         setAvailableTeams([]);
       }
     };

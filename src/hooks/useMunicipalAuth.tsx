@@ -45,7 +45,6 @@ export const MunicipalAuthProvider = ({ children }: { children: ReactNode }) => 
           localStorage.removeItem('municipal_session');
         }
       } catch (error) {
-        console.error('Error parsing municipal session:', error);
         localStorage.removeItem('municipal_session');
       }
     }

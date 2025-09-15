@@ -6,8 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { MunicipalAuthProvider } from "@/hooks/useMunicipalAuth";
 import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Auth from "./pages/Auth";
+import Authentication from "./pages/Authentication";
 import Dashboard from "./pages/Dashboard";
 import MunicipalLogin from "./pages/MunicipalLogin";
 import MunicipalDashboard from "./pages/MunicipalDashboard";
@@ -27,8 +26,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/auth" element={<Auth />} />
+              <Route path="/login" element={<Authentication />} />
+              <Route path="/auth" element={<Authentication />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/municipal-login" element={<MunicipalLogin />} />
               <Route path="/municipal-dashboard" element={<MunicipalDashboard />} />
