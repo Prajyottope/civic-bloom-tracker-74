@@ -1,13 +1,58 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from './locales/en.json';
-import hi from './locales/hi.json';
-import te from './locales/te.json';
 
 const resources = {
-  en: { translation: en },
-  hi: { translation: hi },
-  te: { translation: te },
+  en: {
+    translation: {
+      nav: {
+        home: "Home",
+        dashboard: "Dashboard",
+        profile: "Profile",
+        mapView: "Map View",
+        login: "Login",
+        logout: "Logout",
+        municipalLogin: "Municipal Login"
+      },
+      common: {
+        loading: "Loading...",
+        back: "Back"
+      }
+    }
+  },
+  hi: {
+    translation: {
+      nav: {
+        home: "होम",
+        dashboard: "डैशबोर्ड",
+        profile: "प्रोफाइल",
+        mapView: "मैप व्यू",
+        login: "लॉगिन",
+        logout: "लॉगआउट",
+        municipalLogin: "नगरपालिका लॉगिन"
+      },
+      common: {
+        loading: "लोड हो रहा है...",
+        back: "वापस"
+      }
+    }
+  },
+  te: {
+    translation: {
+      nav: {
+        home: "హోమ్",
+        dashboard: "డాష్‌బోర్డ్",
+        profile: "ప్రొఫైల్",
+        mapView: "మ్యాప్ వ్యూ",
+        login: "లాగిన్",
+        logout: "లాగ్అవుట్",
+        municipalLogin: "మునిసిపల్ లాగిన్"
+      },
+      common: {
+        loading: "లోడింగ్...",
+        back: "వెనుకకు"
+      }
+    }
+  }
 };
 
 i18n.use(initReactI18next).init({

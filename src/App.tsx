@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { MunicipalAuthProvider } from "@/hooks/useMunicipalAuth";
-import { LanguageProvider } from "@/hooks/useLanguage";
 import Index from "./pages/Index";
 import Authentication from "./pages/Authentication";
 import Dashboard from "./pages/Dashboard";
@@ -20,10 +19,9 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <AuthProvider>
-        <MunicipalAuthProvider>
-          <TooltipProvider>
+    <AuthProvider>
+      <MunicipalAuthProvider>
+        <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -41,10 +39,9 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
-          </TooltipProvider>
-        </MunicipalAuthProvider>
-      </AuthProvider>
-    </LanguageProvider>
+        </TooltipProvider>
+      </MunicipalAuthProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
