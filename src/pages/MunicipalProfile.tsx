@@ -49,7 +49,7 @@ const MunicipalProfile = () => {
       setTotalCount(total || 0);
       setResolvedCount(resolved || 0);
     } catch (error) {
-      console.error('Error fetching issue stats:', error);
+      // Error handled silently
     }
   };
 

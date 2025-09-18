@@ -137,7 +137,7 @@ const MunicipalDashboard = () => {
         }
       });
     } catch (error) {
-      console.error('Error sending email:', error);
+      // Silent error handling
     }
   };
 

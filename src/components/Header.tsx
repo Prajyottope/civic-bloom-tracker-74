@@ -54,7 +54,7 @@ export const Header = ({
         
         setUserProfile(data);
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        // Silent error handling
       }
     };
 

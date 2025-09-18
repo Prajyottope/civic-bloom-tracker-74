@@ -118,7 +118,9 @@ const MunicipalLogin = () => {
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p> THIS SECTION CAN ONLY BE USED BY ADMIN.</p>
+            <p>Demo Credentials:</p>
+            <p>Email: prajyottope@gmail.com</p>
+            <p>Password: Prajyot@0404</p>
           </div>
         </CardContent>
       </Card>
