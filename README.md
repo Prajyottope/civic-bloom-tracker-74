@@ -83,7 +83,3 @@ The application can be deployed to various platforms that support React applicat
 - **AWS**: Enterprise-grade cloud deployment
 
 For database and backend services, configure your Supabase project and update the connection settings in the application.
-
-
-
-abc
