@@ -328,11 +328,17 @@ const resources = {
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: localStorage.getItem('language') || 'en',
+  lng: 'en',
   fallbackLng: 'en',
   interpolation: {
     escapeValue: false,
   },
 });
+
+// Set language from localStorage after initialization
+const savedLanguage = typeof window !== 'undefined' ? localStorage.getItem('language') : null;
+if (savedLanguage) {
+  i18n.changeLanguage(savedLanguage);
+}
 
 export default i18n;
