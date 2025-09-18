@@ -117,7 +117,10 @@ const Profile = () => {
       <div className="container mx-auto px-4 py-8">
         <Card>
           <CardContent className="text-center py-8">
-            <p>Please log in to view your profile.</p>
+            <p className="mb-4">Please log in to view your profile.</p>
+            <Button onClick={() => window.location.href = '/auth'} className="bg-gradient-primary">
+              Sign In / Sign Up
+            </Button>
           </CardContent>
         </Card>
       </div>

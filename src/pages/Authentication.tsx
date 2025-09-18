@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Leaf } from 'lucide-react';
 
 const Authentication = () => {
@@ -37,26 +38,43 @@ const Authentication = () => {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    setTimeout(() => {
+    // Use Supabase OAuth for Google signin instead of fake localStorage
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
+    });
+    
+    if (error) {
+      console.error('Google signin error:', error);
+      // Fallback for demo purposes
       localStorage.setItem('user', JSON.stringify({ 
         id: 'user_' + Date.now(), 
-        name: 'User',
+        name: 'Demo User',
         type: 'google' 
       }));
       window.location.href = '/dashboard';
-    }, 1000);
+    }
+    setLoading(false);
   };
 
   const handleGuestSignIn = async () => {
     setLoading(true);
-    setTimeout(() => {
+    // For demo purposes, we'll create a temporary user in Supabase
+    // In a real app, you'd want proper guest user handling
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      console.error('Guest signin error:', error);
+      // Fallback to localStorage for demo
       localStorage.setItem('user', JSON.stringify({ 
         id: 'guest_' + Date.now(), 
         name: 'Guest User',
         type: 'guest' 
       }));
       window.location.href = '/dashboard';
-    }, 500);
+    }
+    setLoading(false);
   };
 
   const renderAuthOptions = () => (
