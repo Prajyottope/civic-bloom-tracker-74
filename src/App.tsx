@@ -13,6 +13,7 @@ import MunicipalDashboard from "./pages/MunicipalDashboard";
 import MunicipalProfile from "./pages/MunicipalProfile";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import MapViewPage from "./pages/MapViewPage";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/login" element={<Authentication />} />
               <Route path="/auth" element={<Authentication />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/map" element={<MapViewPage />} />
               <Route path="/municipal-login" element={<MunicipalLogin />} />
               <Route path="/municipal-dashboard" element={<MunicipalDashboard />} />
               <Route path="/municipal-profile" element={<MunicipalProfile />} />
