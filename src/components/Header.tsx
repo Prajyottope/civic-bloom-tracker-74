@@ -8,11 +8,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { Shield, Filter, LogOut, MoreVertical, Settings, Users, BarChart3 } from 'lucide-react';
+import { Shield, Filter, LogOut, MoreVertical, Settings, Users, BarChart3, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { LocationFilter } from './LocationFilter';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
   onFilterChange: (filter: string) => void;
@@ -30,6 +32,7 @@ export const Header = ({
   selectedCity 
 }: HeaderProps) => {
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const [pendingCount, setPendingCount] = useState(0);
   const [userProfile, setUserProfile] = useState<any>(null);
 
@@ -69,10 +72,10 @@ export const Header = ({
   };
 
   const filterOptions = [
-    { value: 'all', label: 'All Issues' },
-    { value: 'pending', label: `Pending Issues ${pendingCount > 0 ? `(${pendingCount})` : ''}` },
-    { value: 'in_progress', label: 'In Progress Issues' },
-    { value: 'resolved', label: 'Resolved Issues' },
+    { value: 'all', label: t('issues.all') },
+    { value: 'pending', label: `${t('issues.pending')} ${pendingCount > 0 ? `(${pendingCount})` : ''}` },
+    { value: 'in_progress', label: t('issues.inProgress') },
+    { value: 'resolved', label: t('issues.resolved') },
   ];
 
   return (
@@ -89,6 +92,8 @@ export const Header = ({
         </div>
         
         <div className="flex items-center space-x-2 overflow-x-auto">
+          <LanguageSwitcher />
+          
           <div className="flex-shrink-0">
             <LocationFilter 
               onLocationChange={onLocationChange}
@@ -104,7 +109,7 @@ export const Header = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
-              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('issues.filterByStatus')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {filterOptions.map((option) => (
                 <DropdownMenuItem
@@ -121,7 +126,7 @@ export const Header = ({
           {user && (
             <div className="text-right hidden sm:block flex-shrink-0">
               <p className="text-sm font-medium text-foreground whitespace-nowrap">
-                Welcome, {userProfile?.username || userProfile?.display_name || user.email?.split('@')[0]}
+                {t('nav.welcome')}, {userProfile?.username || userProfile?.display_name || user.email?.split('@')[0]}
               </p>
             </div>
           )}
@@ -133,25 +138,32 @@ export const Header = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
-              <DropdownMenuLabel>Menu</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('nav.menu')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              
+              <DropdownMenuItem asChild>
+                <Link to="/map" className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  {t('nav.mapView')}
+                </Link>
+              </DropdownMenuItem>
               
               <DropdownMenuItem asChild>
                 <Link to="/municipal-login" className="flex items-center">
                   <BarChart3 className="h-4 w-4 mr-2" />
-                  Municipal Dashboard
+                  {t('nav.municipalLogin')}
                 </Link>
               </DropdownMenuItem>
               
               <DropdownMenuItem>
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                {t('nav.settings')}
               </DropdownMenuItem>
               
               <DropdownMenuItem asChild>
                 <Link to="/profile" className="flex items-center">
                   <Users className="h-4 w-4 mr-2" />
-                  Profile
+                  {t('nav.profile')}
                 </Link>
               </DropdownMenuItem>
 
@@ -160,7 +172,7 @@ export const Header = ({
               {user && (
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {t('nav.logout')}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
